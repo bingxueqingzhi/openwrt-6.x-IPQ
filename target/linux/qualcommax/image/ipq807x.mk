@@ -1,3 +1,5 @@
+DEVICE_VARS += NETGEAR_BOARD_ID NETGEAR_HW_ID
+
 define Build/asus-fake-ramdisk
 	rm -rf $(KDIR)/tmp/fakerd
 	dd if=/dev/zero bs=32 count=1 > $(KDIR)/tmp/fakerd
@@ -46,7 +48,7 @@ endef
 TARGET_DEVICES += arcadyan_aw1000
 
 define Device/asus_rt-ax89x
-       DEVICE_VENDOR := Asus
+	DEVICE_VENDOR := Asus
 	DEVICE_MODEL := RT-AX89X
 	BLOCKSIZE := 128k
 	PAGESIZE := 2048
@@ -154,6 +156,21 @@ define Device/edimax_cax1800
 endef
 TARGET_DEVICES += edimax_cax1800
 
+define Device/linksys_homewrk
+	$(call Device/FitImage)
+	$(call Device/UbiFit)
+	DEVICE_VENDOR := Linksys
+	DEVICE_MODEL := HomeWRK
+	DEVICE_DTS_CONFIG := config@oak03
+	BLOCKSIZE := 256k
+	PAGESIZE := 4096
+	IMAGE_SIZE := 475m
+	NAND_SIZE := 1024m
+	SOC := ipq8174
+	DEVICE_PACKAGES += kmod-leds-pca963x ipq-wifi-linksys_homewrk
+endef
+TARGET_DEVICES += linksys_homewrk
+
 define Device/linksys_mx
 	$(call Device/FitImage)
 	DEVICE_VENDOR := Linksys
@@ -168,12 +185,17 @@ define Device/linksys_mx
 	DEVICE_PACKAGES := kmod-leds-pca963x
 endef
 
-define Device/linksys_mx4200v1
+define Device/linksys_mx4x00
 	$(call Device/linksys_mx)
+	SOC := ipq8174
+	DEVICE_PACKAGES += ipq-wifi-linksys_mx4200
+endef
+
+define Device/linksys_mx4200v1
+	$(call Device/linksys_mx4x00)
 	DEVICE_MODEL := MX4200
 	DEVICE_VARIANT := v1
-	SOC := ipq8174
-	DEVICE_PACKAGES += ipq-wifi-linksys_mx4200 kmod-bluetooth
+	DEVICE_PACKAGES += kmod-bluetooth
 endef
 TARGET_DEVICES += linksys_mx4200v1
 
@@ -183,11 +205,22 @@ define Device/linksys_mx4200v2
 endef
 TARGET_DEVICES += linksys_mx4200v2
 
+define Device/linksys_mx4300
+	$(call Device/linksys_mx4x00)
+	DEVICE_MODEL := MX4300
+	BLOCKSIZE := 256k
+	PAGESIZE := 4096
+	KERNEL_SIZE := 8192k
+	IMAGE_SIZE := 171264k
+	NAND_SIZE := 1024m
+endef
+TARGET_DEVICES += linksys_mx4300
+
 define Device/linksys_mx5300
 	$(call Device/linksys_mx)
 	DEVICE_MODEL := MX5300
 	DEVICE_PACKAGES += kmod-rtc-ds1307 ipq-wifi-linksys_mx5300 \
-		kmod-ath10k-ct ath10k-firmware-qca9984-ct
+		kmod-ath10k ath10k-firmware-qca9984
 endef
 TARGET_DEVICES += linksys_mx5300
 
@@ -308,7 +341,7 @@ define Device/prpl_haze
 	DEVICE_DTS_CONFIG := config@hk09
 	SOC := ipq8072
 	DEVICE_PACKAGES := ath11k-firmware-qcn9074 ipq-wifi-prpl_haze kmod-ath11k-pci \
-		mkf2fs f2fsck kmod-fs-f2fs kmod-leds-lp5562
+		kmod-fs-f2fs f2fs-tools kmod-leds-lp5562
 endef
 TARGET_DEVICES += prpl_haze
 
@@ -320,7 +353,7 @@ define Device/qnap_301w
 	DEVICE_DTS_CONFIG := config@hk01
 	KERNEL_SIZE := 16384k
 	SOC := ipq8072
-	DEVICE_PACKAGES := ipq-wifi-qnap_301w
+	DEVICE_PACKAGES := kmod-fs-f2fs f2fs-tools ipq-wifi-qnap_301w
 endef
 TARGET_DEVICES += qnap_301w
 
@@ -340,9 +373,37 @@ define Device/spectrum_sax1v1k
 	DEVICE_DTS_CONFIG := config@rt5010w-d187-rev6
 	SOC := ipq8072
 	IMAGES := sysupgrade.bin
-	DEVICE_PACKAGES := ipq-wifi-spectrum_sax1v1k
+	DEVICE_PACKAGES := kmod-fs-f2fs f2fs-tools ipq-wifi-spectrum_sax1v1k
 endef
 TARGET_DEVICES += spectrum_sax1v1k
+
+define Device/tplink_eap620hd-v1
+	$(call Device/FitImage)
+	$(call Device/UbiFit)
+	DEVICE_VENDOR := TP-Link
+	DEVICE_MODEL := EAP620 HD
+	DEVICE_VARIANT := v1
+	BLOCKSIZE := 128k
+	PAGESIZE := 2048
+	SOC := ipq8072
+	DEVICE_PACKAGES := ipq-wifi-tplink_eap620hd-v1
+	TPLINK_SUPPORT_STRING := SupportList:\r\nEAP620 HD(TP-Link|UN|AX1800-D):1.0\r\n
+endef
+TARGET_DEVICES += tplink_eap620hd-v1
+
+define Device/tplink_eap660hd-v1
+	$(call Device/FitImage)
+	$(call Device/UbiFit)
+	DEVICE_VENDOR := TP-Link
+	DEVICE_MODEL := EAP660 HD
+	DEVICE_VARIANT := v1
+	BLOCKSIZE := 128k
+	PAGESIZE := 2048
+	SOC := ipq8072
+	DEVICE_PACKAGES := ipq-wifi-tplink_eap660hd-v1
+	TPLINK_SUPPORT_STRING := SupportList:\r\nEAP660 HD(TP-Link|UN|AX3600-D):1.0\r\n
+endef
+TARGET_DEVICES += tplink_eap660hd-v1
 
 define Device/xiaomi_ax3600
 	$(call Device/FitImage)
@@ -354,7 +415,7 @@ define Device/xiaomi_ax3600
 	DEVICE_DTS_CONFIG := config@ac04
 	SOC := ipq8071
 	KERNEL_SIZE := 36608k
-	DEVICE_PACKAGES := ipq-wifi-xiaomi_ax3600 kmod-ath10k-ct-smallbuffers ath10k-firmware-qca9887-ct
+	DEVICE_PACKAGES := ipq-wifi-xiaomi_ax3600 kmod-ath10k-smallbuffers ath10k-firmware-qca9887
 ifneq ($(CONFIG_TARGET_ROOTFS_INITRAMFS),)
 	ARTIFACTS := initramfs-factory.ubi
 	ARTIFACT/initramfs-factory.ubi := append-image-stage initramfs-uImage.itb | ubinize-kernel
@@ -373,7 +434,7 @@ define Device/xiaomi_ax9000
 	SOC := ipq8072
 	KERNEL_SIZE := 57344k
 	DEVICE_PACKAGES := ipq-wifi-xiaomi_ax9000 kmod-ath11k-pci ath11k-firmware-qcn9074 \
-		kmod-ath10k-ct ath10k-firmware-qca9887-ct
+		kmod-ath10k ath10k-firmware-qca9887
 ifneq ($(CONFIG_TARGET_ROOTFS_INITRAMFS),)
 	ARTIFACTS := initramfs-factory.ubi
 	ARTIFACT/initramfs-factory.ubi := append-image-stage initramfs-uImage.itb | ubinize-kernel
@@ -432,7 +493,7 @@ define Device/zyxel_nbg7815
 	DEVICE_MODEL := NBG7815
 	DEVICE_DTS_CONFIG := config@nbg7815
 	SOC := ipq8074
-	DEVICE_PACKAGES := ipq-wifi-zyxel_nbg7815 kmod-ath11k-pci \
+	DEVICE_PACKAGES := kmod-fs-f2fs f2fs-tools ipq-wifi-zyxel_nbg7815 kmod-ath11k-pci \
 		kmod-bluetooth kmod-hwmon-tmp103
 endef
 TARGET_DEVICES += zyxel_nbg7815
